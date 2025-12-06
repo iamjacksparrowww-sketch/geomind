@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoMind: GenAI-Enabled Exploration Intelligence System</title>
+    <meta name="description" content="Secure, RAG-powered GenAI assistant for upstream oil & gas exploration, turning decades of proprietary data into instant, citable insights.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2300BCD4' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E">
+    <style>
+        :root {
+            --primary-color: #002244; /* Deep Navy Blue */
+            --accent-color: #00BCD4; /* Bright Cyan/Teal */
+            --light-color: #F8F9FA;
+            --dark-color: #343A40;
+            --secondary-bg: #E9ECEF;
+            --font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* Base Styles */
+        body {
+            font-family: var(--font-family);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        h1 { font-size: 2.8rem; }
+        h2 { font-size: 2rem; border-bottom: 2px solid var(--secondary-bg); padding-bottom: 10px; margin-bottom: 30px;}
+        h3 { font-size: 1.5rem; }
+
+        p { margin-bottom: 1.5em; }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        section {
+            padding: 60px 0;
+            border-bottom: 1px solid var(--secondary-bg);
+        }
+
+        /* Navigation */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background-color: var(--primary-color);
+            padding: 15px 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            color: var(--light-color);
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--light-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #00A3B5;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--light-color);
+            border: 2px solid var(--light-color);
+            margin-left: 15px;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        #hero {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            padding: 100px 0;
+            text-align: center;
+            /* Placeholder for the background visual concept */
+            background-image: linear-gradient(rgba(0, 34, 68, 0.8), rgba(0, 34, 68, 0.8)), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cpattern id="seismic" width="10" height="10" patternUnits="userSpaceOnUse"%3E%3Cline x1="0" y1="0" x2="10" y2="10" stroke="%23002f5a" stroke-width="0.5"/%3E%3Cline x1="10" y1="0" x2="0" y2="10" stroke="%23002f5a" stroke-width="0.5"/%3E%3C/pattern%3E%3C/defs%3E%3Crect x="0" y="0" width="100" height="100" fill="url(%23seismic)" opacity="0.4"/%3E%3C/svg%3E');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #hero h1 {
+            color: var(--accent-color);
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+
+        #hero p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-group {
+            margin-top: 30px;
+        }
+
+        /* Exploration Challenge */
+        #challenge .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .challenge-point {
+            background-color: var(--secondary-bg);
+            padding: 25px;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+        }
+
+        .challenge-point h3 {
+            margin-top: 0;
+            color: var(--dark-color);
+        }
+
+        .stat-block {
+            text-align: center;
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            padding: 30px;
+            margin-top: 40px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+        }
+
+        .stat-block strong {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            display: block;
+        }
+
+        /* Solution Features */
+        #solution-features .feature-card {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #dee2e6;
+            height: 100%;
+            transition: transform 0.3s;
+        }
+
+        #solution-features .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #solution-features .icon {
+            color: var(--accent-color);
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* Architecture and Workflow */
+        #architecture {
+            background-color: var(--secondary-bg);
+        }
+
+        .architecture-diagram, .workflow-steps {
+            margin-top: 40px;
+        }
+
+        .arch-component {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .arch-flow {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .workflow-steps ol {
+            list-style: none;
+            counter-reset: workflow-counter;
+            padding-left: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .workflow-steps li {
+            counter-increment: workflow-counter;
+            position: relative;
+            padding: 20px;
+            border: 1px dashed var(--dark-color);
+            border-radius: 4px;
+            background-color: #fff;
+            min-height: 120px;
+        }
+
+        .workflow-steps li::before {
+            content: counter(workflow-counter);
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: 2px solid var(--primary-color);
+        }
+
+        /* Stakeholder Sections */
+        .leader-card {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary-color);
+        }
+        .leader-card h3 {
+            color: var(--accent-color);
+            margin-top: 0;
+        }
+
+        /* Business Impact Table */
+        .impact-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .impact-table th, .impact-table td {
+            padding: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .impact-table th {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            font-weight: 600;
+        }
+
+        .impact-table tr:nth-child(even) {
+            background-color: #f4f4f4;
+        }
+
+        .impact-table td:nth-child(2) {
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .impact-table td:nth-child(3) {
+            background-color: #E6FFFA;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* Pilot Plan */
+        #pilot h3 {
+            color: var(--primary-color);
+        }
+        #pilot ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        #pilot ul li {
+            background: #fff;
+            border-left: 5px solid var(--accent-color);
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        #pilot strong {
+            color: var(--primary-color);
+        }
+
+        /* Benefits vs Constraints */
+        .risk-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .benefit-list, .risk-list {
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .benefit-list {
+            background-color: #E6FFFA;
+            border: 1px solid #B2F5EA;
+        }
+        .benefit-list h3 { color: #008060; }
+
+        .risk-list {
+            background-color: #FFF5E6;
+            border: 1px solid #FFD499;
+        }
+        .risk-list h3 { color: #CC6600; }
+
+        .risk-list ul, .benefit-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .risk-list li, .benefit-list li {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .benefit-list li::before {
+            content: '✓';
+            color: #008060;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+        }
+        .risk-list li::before {
+            content: '⚠';
+            color: #CC6600;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+        }
+        .risk-list small {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            color: var(--dark-color);
+        }
+
+        /* FAQ */
+        .faq-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 15px;
+        }
+        .faq-question {
+            font-weight: 700;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 10px 0;
+            transition: color 0.3s;
+        }
+        .faq-question:hover {
+            color: var(--accent-color);
+        }
+        .faq-answer {
+            padding: 10px 0 5px 20px;
+            display: none; /* Controlled by JS */
+        }
+        .faq-answer.active {
+            display: block;
+        }
+
+        /* Contact Section */
+        #contact {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            text-align: center;
+        }
+
+        #contact h2 {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 30px auto 0;
+            text-align: left;
+        }
+
+        .contact-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .contact-form input[type="text"],
+        .contact-form input[type="email"],
+        .contact-form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box; /* Important for padding/width calculation */
+            background-color: #fff;
+            color: var(--dark-color);
+        }
+
+        .contact-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .privacy-note {
+            font-size: 0.9rem;
+            margin-top: 20px;
+            opacity: 0.8;
+        }
+
+        /* Utility/Layout Grids */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        /* Icons (Simplified) */
+        .icon-brain::before { content: '🧠'; }
+        .icon-search::before { content: '🔍'; }
+        .icon-geology::before { content: '🏔️'; }
+        .icon-well::before { content: '🛢️'; }
+        .icon-memo::before { content: '📝'; }
+        .icon-onboard::before { content: '🧑‍💻'; }
+        .icon-manager::before { content: '📈'; }
+        .icon-geoscientist::before { content: '🧭'; }
+        .icon-it::before { content: '🔒'; }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 900px) {
+            .nav-links a { margin-left: 15px; font-size: 0.9rem; }
+            #hero h1 { font-size: 2.5rem; }
+            #hero p { font-size: 1.1rem; }
+            h2 { font-size: 1.7rem; }
+            .risk-table { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .nav-content { flex-direction: column; }
+            .nav-links { margin-top: 10px; }
+            .nav-links a { margin: 0 10px; }
+            .btn { width: 100%; margin: 10px 0 0 !important; }
+            .cta-group .btn-secondary { margin-left: 0 !important; }
+            #hero { padding: 60px 0; }
+            #hero h1 { font-size: 2rem; }
+            .workflow-steps ol { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#hero" class="logo">GeoMind</a>
+            <div class="nav-links">
+                <a href="#challenge">Challenge</a>
+                <a href="#solution-features">Solution</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#impact">Value</a>
+                <a href="#pilot">Pilot</a>
+                <a href="#contact" class="btn btn-primary" style="margin-left: 30px;">Request a Pilot</a>
+            </div>
+        </div>
+    </nav>
+    <section id="hero">
+        <div class="container">
+            <h1 class="icon-brain">GeoMind: Exploration Intelligence System</h1>
+            <p><strong>Turn Decades of Proprietary Basin Knowledge into Instant, Citable Insight.</strong> GeoMind is a secure, domain-specific GenAI assistant, powered by Retrieval-Augmented Generation (RAG), that transforms how subsurface teams access and utilize your company’s exploration data.</p>
+
+            <!-- IMAGE INTEGRATION POINT: Main AI/Subsurface Graphic -->
+            <!-- Placeholder for geomind_hero_main.png -->
+            <img src="./geomind_hero_main.png" 
+                 alt="3D visualization of GeoMind AI brain processing subsurface cross-section data in real-time." 
+                 class="full-width-image hero-image">
+
+            <div class="cta-group">
+                <a href="#contact" class="btn btn-primary">Request a Pilot Workshop</a>
+                <a href="#solution-features" class="btn btn-secondary">See How It Works</a>
+            </div>
+        </div>
+    </section>
+    <section id="challenge">
+        <div class="container">
+            <h2>The Exploration Knowledge Gap</h2>
+            <p>Capital-intensive exploration decisions rely on synthesized insights, but decades of crucial subsurface knowledge remain **fragmented, unstructured, and hidden** within massive volumes of reports and files. Geoscientists are spending too much time searching—not interpreting.</p>
+<!-- IMAGE INTEGRATION POINT: Desktop/Scattered Data Scene -->
+        <!-- Placeholder for geomind_challenge_scene.png -->
+        <img src="./geomind_challenge_scene.png" 
+             alt="Illustration of a messy geoscientist desk with scattered reports and folders, representing fragmented data." 
+             style="width: 50%; max-width: 500px; margin: 0 auto; display: block;">
+
+            <div class="grid-3">
+                <div class="challenge-point">
+                    <h3>Massive Data Volume</h3>
+                    <p>Thousands of End-of-Well Reports, Basin Studies, and interpretation notes scattered across SharePoints, folders, and legacy systems. True insights are buried in unstructured text.</p>
+                </div>
+                <div class="challenge-point">
+                    <h3>Slow Time-to-Insight</h3>
+                    <p>Weeks of manual document review are required to build a comprehensive prospect review or familiarize a new team member with a basin—time that should be spent on complex interpretation and risk modeling.</p>
+                </div>
+                <div class="challenge-point">
+                    <h3>Strategic Knowledge Risk</h3>
+                    <p>The retirement of senior experts and poor knowledge reuse lead to repeating past mistakes, misjudging reservoir risk, and the potential for costly dry or sub-economic wells.</p>
+                </div>
+            </div>
+
+            <div class="stat-block">
+                For every major drilling decision, teams must synthesize insights from **thousands of pages** of proprietary data. GeoMind reduces this search and synthesis time from **weeks to minutes**.
+            </div>
+        </div>
+    </section>
+    <section id="solution-features">
+        <div class="container">
+            <h2>GeoMind: The Secure, Domain-Specific Solution</h2>
+            <p>GeoMind is your **Co-Pilot for Subsurface Discovery**, designed to preserve, connect, and instantly query your most valuable asset: proprietary exploration knowledge.</p>
+
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="icon icon-search"></div>
+                    <h3>Ask Any Geological Question, Instantly</h3>
+                    <p>Query decades of internal reports using natural language (e.g., "What were the primary charge risks identified in the Eastern Graben play?"). Get concise answers grounded in your data.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon icon-geology"></div>
+                    <h3>Summarize Basin History & Plays</h3>
+                    <p>Generate a first-draft summary of key tectonic, stratigraphic, and petroleum system events for any basin in your portfolio. Perfect for rapid familiarization or decision-document preparation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon icon-well"></div>
+                    <h3>Learn from Every Well Outcome</h3>
+                    <p>Synthesize drill outcomes, detailed reservoir quality trends, and unexpected geological/operational risk factors from historical well reports, connecting success and failure to current prospect decisions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon icon-memo"></div>
+                    <h3>Draft Work Programs & Memos</h3>
+                    <p>Generate high-quality first drafts of technical notes, decision support memos, and slides for management reviews, dramatically accelerating the documentation workflow.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon icon-onboard"></div>
+                    <h3>Accelerate Onboarding & Mobility</h3>
+                    <p>Junior staff and cross-asset transfers can rapidly achieve expert-level basin familiarity by querying the collective knowledge base, significantly reducing the learning curve.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon icon-brain"></div>
+                    <h3>**Crucial: Answers with Citations**</h3>
+                    <p>Every answer is paired with **direct, auditable citations** and links back to the original source document (report page, seismic summary, well file), ensuring **trust and verifiability**.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="architecture">
+        <div class="container">
+            <h2>How GeoMind Works: RAG Architecture & Secure Workflow</h2>
+            <p>GeoMind is powered by **Retrieval-Augmented Generation (RAG)**—a robust, enterprise-grade architecture that grounds the Generative AI model strictly in your proprietary data, controlling quality and ensuring security.</p>
+            
+
+[Image of Retrieval-Augmented Generation (RAG) Architecture for Enterprise Data]
+
+
+            <h3>Technical Pillars: Enterprise-Grade RAG</h3>
+            <div class="grid-4 architecture-diagram">
+                <div class="arch-component"><strong>1. Data Ingestion & Enrichment:</strong> Proprietary documents (PDFs, DOCX, TXT) are ingested, cleaned via OCR, chunked, and tagged with metadata (Well ID, Basin, Formation, Date).</div>
+                <div class="arch-flow">→</div>
+                <div class="arch-component"><strong>2. Vector Database / Knowledge Store:</strong> Document chunks are converted into numerical vectors and securely stored, enabling fast, semantic similarity search.</div>
+                <div class="arch-flow">→</div>
+                <div class="arch-component"><strong>3. Private LLM Layer:</strong> A secure, private, enterprise-grade Large Language Model is hosted in your private cloud environment (VPC).</div>
+                <div class="arch-flow">→</div>
+                <div class="arch-component"><strong>4. Application Layer:</strong> Secure Web UI, APIs, and Role-Based Access Controls (RBAC) ensure the right teams see the right data.</div>
+            </div>
+
+            <h3>The User Workflow: Insight in 5 Steps</h3>
+            <div class="workflow-steps">
+                <ol>
+                    <li>
+                        <strong>User Asks:</strong> Geoscientist submits a complex, natural-language query (e.g., "What is the typical fault seal capacity in the Miocene reservoir of Block A?").
+                    </li>
+                    <li>
+                        <strong>Retrieval:</strong> The RAG system instantly searches the Vector Store, retrieving the top 3-5 most semantically relevant document chunks/reports from your internal corpus.
+                    </li>
+                    <li>
+                        <strong>Generation & Grounding:</strong> The Private LLM receives the user's query *and* the retrieved source text. It is instructed to compose a concise answer **only** using the provided context.
+                    </li>
+                    <li>
+                        <strong>Citations & Output:</strong> The system displays the synthesized answer, along with direct citations and links to the source reports, ensuring auditability and trust.
+                    </li>
+                    <li>
+                        <strong>Refine & Export:</strong> The user refines the query, saves the output, or exports it directly into a decision memo or presentation slide.
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </section>
+    <section id="for-leaders">
+        <div class="container">
+            <h2>Strategic Alignment: For Exploration, Data, and Tech Leaders</h2>
+            <p>GeoMind is a critical enabler, aligning subsurface needs with strategic digital transformation goals.</p>
+
+            <div class="grid-3">
+                <div class="leader-card">
+                    <h3 class="icon-manager">For Exploration Managers</h3>
+                    <ul>
+                        <li><strong>Faster Decision Cycles:</strong> Reduce weeks of manual synthesis to minutes, accelerating the prospect-to-drill timeline.</li>
+                        <li><strong>Risk Mitigation:</strong> Ensure all analogues, historical well outcomes, and known risks are considered before high-stakes capital commitment.</li>
+                        <li><strong>Knowledge Preservation:</strong> Capture and operationalize the experience of senior experts as they retire.</li>
+                    </ul>
+                </div>
+                <div class="leader-card">
+                    <h3 class="icon-geoscientist">For Geoscientists & Reservoir Engineers</h3>
+                    <ul>
+                        <li><strong>Focus on Interpretation:</strong> Spend less time searching and synthesizing, and more time on complex data analysis and geological modeling.</li>
+                        <li><strong>Cross-Disciplinary Insight:</strong> Instantly access well summary data, petrophysical notes, and seismic interpretations that were previously siloed.</li>
+                        <li><strong>Auditable Answers:</strong> Trust the results because every insight is backed by a direct link to a company source document.</li>
+                    </ul>
+                </div>
+                <div class="leader-card">
+                    <h3 class="icon-it">For Data & IT Teams</h3>
+                    <ul>
+                        <li><strong>Leverage Existing Data:</strong> Integrates with your existing Data Lake, Document Repositories, and company Cloud/VPC infrastructure.</li>
+                        <li><strong>Security & Governance:</strong> Runs in a private, secured environment with Role-Based Access Control (RBAC) and full audit logs on all queries.</li>
+                        <li><strong>Scalable Architecture:</strong> Built on robust RAG patterns that scale with your exploration portfolio and future data volumes.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="impact">
+        <div class="container">
+            <h2>Tangible Business Impact & Financial Viability</h2>
+            <p>Exploration is a high-leverage business. Improving the quality of a single high-stakes decision has an outsized return. GeoMind drives value through risk reduction and massive productivity gains.</p>
+
+            <p class="stat-block" style="background-color: #00BCD4; color: var(--primary-color);">
+                A single avoided dry well or misjudged appraisal decision can represent **tens to hundreds of millions of dollars** saved. GeoMind's cost is negligible compared to this leverage.
+            </p>
+
+            <h3>Time-to-Insight Comparison</h3>
+            <table class="impact-table">
+                <thead>
+                    <tr>
+                        <th>Dimension</th>
+                        <th>Before GenAI (Manual Review)</th>
+                        <th>With GeoMind (RAG Assistant)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Time to prepare a Basin Brief for new staff</td>
+                        <td>4–6 Weeks</td>
+                        <td>1–3 Days</td>
+                    </tr>
+                    <tr>
+                        <td>Time to prepare Well Decision Note (Source Review)</td>
+                        <td>1–2 Weeks</td>
+                        <td>30–60 Minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Number of sources checked per decision</td>
+                        <td>Limited by human capacity (5–10)</td>
+                        <td>Full Corpus Search (Hundreds)</td>
+                    </tr>
+                    <tr>
+                        <td>Risk of Repeating Past Mistakes</td>
+                        <td>Medium/High (Knowledge gaps)</td>
+                        <td>Low (Comprehensive knowledge reuse)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section id="pilot">
+        <div class="container">
+            <h2>Pilot Program: Start Small, Prove Value, Scale Fast</h2>
+            <p>The most effective path to enterprise adoption is a focused, measured Minimum Viable Product (MVP) pilot within one targeted area of high knowledge density and pain point.</p>
+
+            <h3>Phase 1: Focused Pilot (Weeks 1–8)</h3>
+            <p><strong>Target:</strong> We recommend starting with **one high-priority basin** (e.g., "Northwest Deepwater Basin") or a key play where historical knowledge is most fragmented.</p>
+
+            <ul>
+                <li><strong>Document Selection & Ingestion:</strong> Ingest a curated set of 300–800 key documents (End-of-Well Reports, Basin Studies, prospect reviews, key partner reports).</li>
+                <li><strong>Security & Access Setup:</strong> Establish the private RAG environment and configure role-based access for the pilot user group.</li>
+                <li><strong>User & Question Definition:</strong> Select a representative group (e.g., 2 Senior Geoscientists, 2 New Hires, 1 Manager). Define 20–40 "golden questions" they regularly ask.</li>
+                <li><strong>Training & Rollout:</strong> Conduct focused training: GeoMind is a **Co-Pilot**, not a replacement. Emphasize validation via citations.</li>
+            </ul>
+
+            <h3>Success Metrics (KPIs)</h3>
+            <ul>
+                <li><strong>Time to Answer:</strong> Reduction in time taken to answer the 20-40 "golden questions" (Target: 90% reduction).</li>
+                <li><strong>Quality & Completeness:</strong> Expert rating on the quality and completeness of GeoMind's answers vs. the manual baseline.</li>
+                <li><strong>Trust & Adoption:</strong> User satisfaction surveys and audit logs showing frequency of citation verification and overall tool usage.</li>
+            </ul>
+        </div>
+    </section>
+    <section id="risks">
+        <div class="container">
+            <h2>Trust and Control: Benefits vs. Risks & Mitigation</h2>
+
+            <div class="risk-table">
+                <div class="benefit-list">
+                    <h3 class="icon-search">Core Benefits (Why We Win)</h3>
+                    <ul>
+                        <li><strong>Faster Decisions:</strong> Rapid access to decades of synthesized knowledge.</li>
+                        <li><strong>Risk Reduction:</strong> All historical analogues are considered before capital commitment.</li>
+                        <li><strong>Knowledge Continuity:</strong> Systematically preserves subsurface expertise.</li>
+                        <li><strong>Enhanced Collaboration:</strong> Single source of truth across disciplines and geographies.</li>
+                    </ul>
+                </div>
+
+                <div class="risk-list">
+                    <h3 class="icon-it">Constraints & Mitigations (How We Control)</h3>
+                    <ul>
+                        <li><strong>Hallucinations & Inaccuracy:</strong>
+                            <small>Mitigation: Strict RAG policy. LLM is forced to use retrieved documents. Answers include **direct citations**. Human expert validation is mandatory.</small>
+                        </li>
+                        <li><strong>Data Security & Confidentiality:</strong>
+                            <small>Mitigation: System runs in a **private, secured company cloud/VPC**. Zero data leaves the enterprise environment. Role-Based Access Control (RBAC) and full audit logs are implemented.</small>
+                        </li>
+                        <li><strong>Data Quality & Coverage Gaps:</strong>
+                            <small>Mitigation: Requires upfront, iterative curation of the corpus. The system will explicitly say, "**Information not found in current knowledge base**," avoiding speculation.</small>
+                        </li>
+                        <li><strong>Change Management & Trust:</strong>
+                            <small>Mitigation: Positioned as a **Co-Pilot**, not a replacement. Success depends on building trust through transparent citations and focused training.</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="faq">
+        <div class="container">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">Does GeoMind replace our geoscientists or reservoir engineers?</div>
+                <div class="faq-answer">
+                    <strong>No.</strong> GeoMind is a knowledge **co-pilot** designed to remove the time-consuming tasks of searching and synthesizing unstructured data. It frees up expert geoscientists to focus on complex interpretation, modeling, and validating the final exploration decisions.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What data do we need to start the pilot?</div>
+                <div class="faq-answer">
+                    We start with your **unstructured proprietary documents** for a single asset: End-of-Well Reports, internal basin studies, key prospect review slides, and seismic interpretation summaries. Structured data (well headers, metadata) is used for tagging and contextual retrieval.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How do you handle proprietary and partner data confidentiality?</div>
+                <div class="faq-answer">
+                    The system runs entirely within your company's secured network (private cloud/VPC). **Data is never exposed to external models.** Role-Based Access Control (RBAC) ensures users can only query and retrieve insights from documents they are already authorized to see, enforced at the application layer.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Can GeoMind integrate with our existing data lake and petrotechnical tools?</div>
+                <div class="faq-answer">
+                    Yes. The RAG architecture is designed to leverage existing infrastructure. Data ingestion processes can pull from common data lake storage (e.g., S3/ADLS) and petrotechnical document repositories. Future APIs can allow for seamless export into interpretation software.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Can we run this fully on-premise or in a private cloud?</div>
+                <div class="faq-answer">
+                    Yes, absolutely. For maximum security and compliance, GeoMind's architecture (Vector Store and Private LLM) is designed for deployment within your company’s Virtual Private Cloud (VPC) or even on-premise environments, ensuring complete data residency control.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What happens when the system doesn't have the answer?</div>
+                <div class="faq-answer">
+                    The system is strictly instructed to say, **“Information not found in current knowledge base.”** It will not speculate or hallucinate. This policy is a core control mechanism for maintaining trust and accuracy in high-stakes exploration decisions.
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <section id="contact">
+        <div class="container">
+            <h2>Ready to Transform Exploration Intelligence?</h2>
+            <p>Start a focused pilot program today. Let's ground your GenAI strategy in your most valuable asset: your proprietary subsurface knowledge.</p>
+            <p><strong>Contact our specialist team to define your pilot scope in a single, high-value basin.</strong></p>
+
+            <form class="contact-form">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="role">Role</label>
+                <input type="text" id="role" name="role" placeholder="e.g., Chief Geoscientist, VP Exploration" required>
+
+                <label for="company">Company</label>
+                <input type="text" id="company" name="company" required>
+
+                <label for="email">Work Email</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="basin">Basin/Region of Interest (for pilot)</label>
+                <input type="text" id="basin" name="basin" placeholder="e.g., Gulf of Mexico, Permian Basin" required>
+
+                <label for="message">Message / Specific Challenge (Optional)</label>
+                <textarea id="message" name="message"></textarea>
+
+                <button type="submit" class="btn btn-primary" style="background-color: var(--accent-color); color: var(--primary-color); border-color: var(--accent-color); width: 100%;">Schedule Pilot Scoping Call</button>
+            </form>
+
+            <p class="privacy-note">Your information is confidential and will only be used to discuss your GeoMind deployment. We are experts in data governance and security.</p>
+        </div>
+    </section>
+    <footer style="background-color: var(--dark-color); color: #ccc; padding: 20px 0; text-align: center; font-size: 0.8rem;">
+        <div class="container">
+            <p>&copy; 2025 GeoMind. GenAI-Enabled Exploration Intelligence System. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Smooth Scroll for Navigation Links
+            document.querySelectorAll('.navbar a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    // Check if it's the contact button, which is handled differently
+                    if (this.classList.contains('btn-primary')) {
+                        // Let the anchor link to the section, but ensure smooth scroll
+                    } else {
+                        e.preventDefault();
+                    }
+
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - (document.querySelector('.navbar').offsetHeight),
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // FAQ Accordion
+            document.querySelectorAll('.faq-question').forEach(question => {
+                question.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const isActive = answer.classList.contains('active');
+
+                    // Close all answers
+                    document.querySelectorAll('.faq-answer').forEach(ans => {
+                        ans.classList.remove('active');
+                    });
+
+                    // Toggle the clicked answer
+                    if (!isActive) {
+                        answer.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
